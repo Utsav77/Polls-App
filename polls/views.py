@@ -1,5 +1,8 @@
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views import generic
 #from django.http import Http404
@@ -8,8 +11,12 @@ from .models import Choice, Question
 
 #from django.template import loader
 
-class IndexView(generic.ListView):
-    template_name = 'polls/index.html'
+
+def home(request):
+    return render(request, 'polls/home.html')
+
+class QuestionView(generic.ListView):
+    template_name = 'polls/question.html'
     context_object_name = 'latest_question_list'
 
     def get_queryset(self):
@@ -25,6 +32,21 @@ class DetailView(generic.DetailView):
 class ResultsView(generic.DetailView):
     model = Question
     template_name = 'polls/results.html'
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            username = form.cleaned_data.get('username')
+            raw_password = form.cleaned_data.get('password1')
+            user = authenticate(username=username, password=raw_password)
+            login(request, user)
+            return redirect('/polls/question')
+    else:
+        form = UserCreationForm()
+    return render(request, 'polls/signup.html', {'form': form})
+
 
 '''def index(request):
     latest_question_list = Question.objects.order_by('-pub_date')[:5]
