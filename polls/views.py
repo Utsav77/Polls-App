@@ -199,6 +199,9 @@ def poll_vote(request, poll_id):
     if choice_id:
         choice = Choice.objects.get(id=choice_id)
         vote = Vote(user=request.user, poll=poll, choice=choice)
+        selected_choice = poll.choice_set.get(pk=request.POST['choice'])
+        selected_choice.votes += 1
+        selected_choice.save()
         vote.save()
         print(vote)
         return render(request, 'polls/poll_result.html', {'poll': poll})

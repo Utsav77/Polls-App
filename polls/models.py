@@ -31,13 +31,13 @@ class Poll(models.Model):
 class Choice(models.Model):
     poll = models.ForeignKey(Poll, on_delete=models.CASCADE)
     choice_text = models.CharField(max_length=255)
-
+    votes = models.IntegerField(default=0)
     @property
     def get_vote_count(self):
         return self.vote_set.count()
 
     def __str__(self):
-        return f"{self.poll.text[:25]} - {self.choice_text[:25]}"
+        return f"{self.poll.text[:50]} --> {self.choice_text[:25]} --> {self.votes}"
 
 
 class Vote(models.Model):
@@ -46,4 +46,4 @@ class Vote(models.Model):
     choice = models.ForeignKey(Choice, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f'{self.poll.text[:15]} - {self.choice.choice_text[:15]} - {self.user.username}'
+        return f'{self.poll.text[:50]} --> {self.choice.choice_text[:25]} --> {self.user.username}'
