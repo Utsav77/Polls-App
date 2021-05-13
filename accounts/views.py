@@ -9,6 +9,7 @@ import json
 from django.core.mail import send_mail
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.http import urlsafe_base64_encode
+from .task import *
 
 
 
@@ -67,15 +68,7 @@ def create_user(request):
                 user = User.objects.create_user(username=username, password=password1, email=email)
                 user.is_active = True
                 user.save()
-                email_sub = 'Your account is activated'
-                email_body = 'Thanks for registering. You can now login safely.'
-                email = EmailMessage(
-                    email_sub,
-                    email_body,
-                    'noreply@pollsapp.com',
-                    [email],
-                )
-                email.send(fail_silently=False)
+                send_mail_task.delay(email)
                 messages.success(
                     request, f'Thanks for registering {user.username}!', extra_tags='alert alert-success alert-dismissible fade show')
                 return redirect('accounts:login')
